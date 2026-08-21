@@ -46,6 +46,20 @@ Generation workflow:
 
 If the user only asks for prompt text, do not run ComfyUI. If the user asks to generate, make an image, run one, call/run workflow, or otherwise asks for an image result, continue through the runner and final-output steps.
 
+## Model Type Gate
+
+Before creating, refining, reviewing, or generating from a prompt, determine the model type because prompt ordering, quality fragments, artist syntax, and fixed negative prompts are model-dependent.
+
+Treat the model as known when it is explicitly identified by the user, an attached model-specific document, the current conversation, or the selected workflow/checkpoint. Do not ask again when that evidence is unambiguous.
+
+If the model type cannot be determined:
+
+1. Ask the user which model or exact checkpoint they are using, with examples such as `Anima-2.9B`, `WAI Illustrious SDXL`, `RIN Flanime Illustrious`, or another named checkpoint.
+2. Do not assume a generic SDXL model and do not choose model-specific quality or negative fragments on the user's behalf.
+3. Do not output the four final prompt blocks or run a generation until the model is confirmed.
+
+For a model not covered by the fixed model table, use the user's model-specific documentation or workflow fragments when available. If those rules are unavailable, say which model-specific information is missing and ask the user for the checkpoint or its recommended positive and negative fragments.
+
 ## Local Tag Sources
 
 Choose tags from the user's local data before inventing tags:
@@ -63,6 +77,43 @@ python C:\Users\lenovo\.codex\skills\comfyui-tag-finder\scripts\find_tags.py --r
 ```
 
 Tag values may use underscores. Output prompt tags with spaces, except keep underscores inside kaomoji/emoticons and proper work/character/special names when the name itself requires them.
+
+## Artist Tag Fallback
+
+### Optional Anima-2.9B Artist Suggestions
+
+For Anima-2.9B, artist tags are optional rather than a gate. If the user has not specified an artist, continue building or generating the no-artist version. Do not silently inject a default artist and do not pause the task only because the artist is unspecified.
+
+When presenting prompt text, append a concise notice after the four required prompt blocks that covers all of the following:
+
+- State that the current artist is unspecified.
+- Explain that artist tags can influence linework, coloring, composition, detail density, and the overall visual aesthetic, but are not required.
+- Suggest comparing the no-artist version with an artist-tag version using the same seed and generation settings when practical.
+- Say that the user may select one or multiple artists. Multiple artists can blend stylistic tendencies, while too many may weaken consistency or create conflicting cues.
+- Offer these three default candidates, collected from the official Anima-2.9B sample prompts at `G:\Tools\ComfyUI\my\Anima-2.9B官方图片正负面Tags.json`: `@rucarachi`, `@far side`, and `@luozhou pile`.
+
+Use wording equivalent to:
+
+```text
+当前未指定画师。画师标签可以影响画面的线条、上色、构图、细节密度和整体审美，但并非必需。你可以先使用无画师版本生成，再加入画师标签并使用相同种子和参数进行对比。可尝试 @rucarachi、@far side、@luozhou pile；你可以选择一个或多个画师，多个画师会混合风格倾向，但数量过多可能降低风格一致性。
+```
+
+These are suggestions only. Add none of them to `[画师/风格词]` unless the user selects them. The official sample JSON is the verification source for these three defaults. When the user selects one or more candidates, preserve the selected order and use Anima's `@artist name` syntax. Do not add weights unless the user requests weights or a model-specific prompt requires them.
+
+### Artist Source and Verification Boundary
+
+Artist `@tags` are not currently stored in `G:\Tools\ComfyUI\user\default\prompt-assistant\tags\*.csv`. Those CSV files are the source for ordinary prompt tags, not the current source of truth for Anima artist tags.
+
+`comfyui-tag-finder` is a separate lookup skill for ordinary tags and Chinese/English tag translations in the Prompt Assistant CSV library. Use it for subject, appearance, clothing, pose, action, expression, scene, camera, lighting, and similar tags. Do not use a no-result from `comfyui-tag-finder` to declare an artist `@tag` invalid.
+
+Apply this artist verification order:
+
+1. For `@rucarachi`, `@far side`, and `@luozhou pile`, treat `G:\Tools\ComfyUI\my\Anima-2.9B官方图片正负面Tags.json` as the verifying source.
+2. For another artist requested by the user, check an available model-specific artist source, official sample metadata, or user-provided documentation before claiming that the exact `@tag` is verified.
+3. If no artist-specific source confirms the exact spelling, do not invent, normalize, replace, or claim verification. Tell the user that the artist tag is not locally verified and offer either using their exact text verbatim or choosing one or more of the three verified defaults.
+4. If the user chooses verbatim use, preserve the exact artist text they supplied and proceed. Artist verification is optional for prompt construction; accurate disclosure is required.
+
+The absence of an artist tag from the ordinary local tag CSV does not block prompt output or generation. If the user does not select an artist, continue with the no-artist version and show the optional Anima artist notice after the four prompt blocks.
 
 ## User Prompt Examples
 
@@ -140,16 +191,17 @@ The two positive blocks must contain identical prompt content apart from the gro
 
 Before finalizing any prompt, run these checks from `references/tags_knowledge.md`:
 
-1. Group format is correct.
-2. Tags are selected from local databases where possible and converted to space style.
-3. Subject is single-person only: `1girl, solo,` or `1boy, solo,` unless the user explicitly changes the rule.
-4. Repeated or redundant tags are removed.
-5. Expression fixed pairs are completed: for example `>_<` requires `closed eyes`; `@_@`, `+_+`, and `<|>_<|>` require `open eyes`.
-6. Expression-eye conflicts are removed: for example `>_<, closed eyes` cannot coexist with `open eyes`, eye-color tags such as `red eyes`, or `detailed eyes`.
-7. Pose/action/camera/background conflicts are removed.
-8. `cowboy shot` adds `cowboy,` to `[补充负面提示词]`.
-9. Negative prompts must contain only `[模型负面提示词]` and `[补充负面提示词]`. The model part comes from the fixed model table. The supplemental part is empty by default and only contains mapped terms required by the positive tags currently being used.
-10. Weights use ComfyUI syntax, e.g. `(>_<:1.2)`, `(:d:1.2)`, `(d::1.2)`.
+1. Model type is confirmed from the user, context, documentation, or selected workflow/checkpoint.
+2. Group format is correct.
+3. Tags are selected from local databases where possible and converted to space style.
+4. Subject is single-person only: `1girl, solo,` or `1boy, solo,` unless the user explicitly changes the rule.
+5. Repeated or redundant tags are removed.
+6. Expression fixed pairs are completed: for example `>_<` requires `closed eyes`; `@_@`, `+_+`, and `<|>_<|>` require `open eyes`.
+7. Expression-eye conflicts are removed: for example `>_<, closed eyes` cannot coexist with `open eyes`, eye-color tags such as `red eyes`, or `detailed eyes`.
+8. Pose/action/camera/background conflicts are removed.
+9. `cowboy shot` adds `cowboy,` to `[补充负面提示词]`.
+10. Negative prompts must contain only `[模型负面提示词]` and `[补充负面提示词]`. The model part comes from the confirmed model's fixed table or supplied model-specific rules. The supplemental part is empty by default and only contains mapped terms required by the positive tags currently being used.
+11. Weights use ComfyUI syntax, e.g. `(>_<:1.2)`, `(:d:1.2)`, `(d::1.2)`.
 
 When handing off to `comfyui-api-workflow-runner`, include prompt gate metadata:
 
@@ -157,7 +209,7 @@ When handing off to `comfyui-api-workflow-runner`, include prompt gate metadata:
 prompt_source = comfyui-tag-prompt-engineer
 tags_knowledge_path = C:\Users\lenovo\.agents\skills\comfyui-tag-prompt-engineer\references\tags_knowledge.md
 prompt_review_passed = true
-model_family = wai | rin
+model_family = wai | rin | anima | other
 prompt_labeled = ...
 negative_prompt_labeled = ...
 positive_prompt = ...
