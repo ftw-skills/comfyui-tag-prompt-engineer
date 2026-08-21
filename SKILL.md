@@ -80,7 +80,16 @@ Do not copy the examples into this skill. Read the current file content whenever
 
 ## Output Format
 
-When presenting prompts to the user, always use grouped lines:
+Whenever prompts are presented to the user, output all four blocks below in this exact order. Do not omit the clean copyable blocks, even when the user only asks for prompt refinement or review.
+
+1. `带分组的正面提示词`: the positive prompt with `[XX词]` labels.
+2. `可直接复制的正面提示词`: the same positive prompt with only the `[XX词]` labels removed; preserve all prompt content, commas, spaces, and line breaks.
+3. `带分组的负面提示词`: the negative prompt with exactly `[模型负面提示词]` and `[补充负面提示词]` labels.
+4. `可直接复制的负面提示词`: the same negative prompt with only those two labels removed; preserve all prompt content, commas, spaces, and line breaks.
+
+Use four clearly titled `text` code blocks:
+
+### 带分组的正面提示词
 
 ```text
 [主体词] 1girl, solo,
@@ -91,12 +100,41 @@ When presenting prompts to the user, always use grouped lines:
 [动作词] holding sword,
 [表情词] (>_<:1.2), closed eyes, d:, crying,
 [背景词] indoors, castle,
-[镜头词] full body, dynamic angle,
+[镜头词] full body, from side,
 [光线词] dramatic lighting, rim light,
 [质量词] masterpiece, best quality, ultra-detailed,
 ```
 
-When giving an API/ComfyUI-node prompt version, remove only the `[XX词]` labels and preserve commas, spaces, and line breaks.
+### 可直接复制的正面提示词
+
+```text
+1girl, solo,
+maid,
+long hair, white hair,
+maid headdress, maid apron, black dress, white thighhighs, sword,
+standing, fighting stance,
+holding sword,
+(>_<:1.2), closed eyes, d:, crying,
+indoors, castle,
+full body, from side,
+dramatic lighting, rim light,
+masterpiece, best quality, ultra-detailed,
+```
+
+### 带分组的负面提示词
+
+```text
+[模型负面提示词] bad quality, worst quality, worst detail, sketch, censor,
+[补充负面提示词]
+```
+
+### 可直接复制的负面提示词
+
+```text
+bad quality, worst quality, worst detail, sketch, censor,
+```
+
+The two positive blocks must contain identical prompt content apart from the group labels. The two negative blocks must also contain identical prompt content apart from their group labels. Explanations may follow the four prompt blocks, but must not interrupt their required order.
 
 ## Mandatory Prompt Review
 
