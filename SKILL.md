@@ -1,6 +1,6 @@
 ---
 name: comfyui-tag-prompt-engineer
-description: Build, review, and use ComfyUI Danbooru-style anime prompts from the user's local tag databases and tags_knowledge rules. Use instead of comfyui-prompt-engineer when the user wants to generate an image, run a ComfyUI generation, or create/review/correct/format ComfyUI prompts, especially for WAI-illustrious-SDXL, RIN Flanime Illustrious, tag-based anime checkpoints, positive/negative prompt pairs, kaomoji/emoticon tags, prompt weights, grouped [XX词] formatting, local Danbooru tag selection, or handoff to comfyui-api-workflow-runner and comfyui-final-output.
+description: Build, review, and use ComfyUI Danbooru-style anime prompts from the user's local tag databases and tags_knowledge rules. Use instead of comfyui-prompt-engineer when the user wants to generate an image, run a ComfyUI generation, create/review/correct/format ComfyUI prompts, or research content-matched Anima artist tags with verified accounts and work links, especially for WAI-illustrious-SDXL, RIN Flanime Illustrious, tag-based anime checkpoints, positive/negative prompt pairs, grouped [XX词] formatting, local Danbooru tag selection, or handoff to comfyui-api-workflow-runner and comfyui-final-output.
 ---
 
 # ComfyUI Tag Prompt Engineer
@@ -65,7 +65,7 @@ For a model not covered by the fixed model table, use the user's model-specific 
 Choose tags from the user's local data before inventing tags:
 
 ```text
-G:\Tools\ComfyUI\user\default\prompt-assistant\tags\*.csv
+the CSV files under the active environment profile's `paths.tag_csv_dir`
 ```
 
 This is the akkki environment's Prompt Assistant library. Search every CSV in this directory so newly added user tag libraries are included automatically. The default `默认标签.csv` stores the Chinese display name in `标签名`, the copyable prompt text in `标签值`, and its hierarchy in `一级分类` through `四级分类`. Use `标签值` in prompts.
@@ -73,12 +73,14 @@ This is the akkki environment's Prompt Assistant library. Search every CSV in th
 Use the existing tag finder script first when searching tags:
 
 ```powershell
-python C:\Users\lenovo\.codex\skills\comfyui-tag-finder\scripts\find_tags.py --root G:\Tools\ComfyUI --query "maid" --query "holding sword"
+python <comfyui-tag-finder>\scripts\find_tags.py --config C:\Users\lenovo\.config\comfyui-codex\environment.json --query "maid" --query "holding sword"
 ```
 
 Tag values may use underscores. Output prompt tags with spaces, except keep underscores inside kaomoji/emoticons and proper work/character/special names when the name itself requires them.
 
 ## Artist Tag Fallback
+
+For content-matched artist recommendations, artist identity resolution, Danbooru-to-Anima mapping, platform-account verification, or representative/recent work links, read `references/artist-research-workflow.md`. Follow its independent evidence statuses and stopping rules. Use `references/artist-research-example-rucarachi.yaml` only as a structural example; re-check volatile links, recent works, dates, and configured model samples at response time.
 
 ### Optional Anima-2.9B Artist Suggestions
 
@@ -90,7 +92,7 @@ When presenting prompt text, append a concise notice after the four required pro
 - Explain that artist tags can influence linework, coloring, composition, detail density, and the overall visual aesthetic, but are not required.
 - Suggest comparing the no-artist version with an artist-tag version using the same seed and generation settings when practical.
 - Say that the user may select one or multiple artists. Multiple artists can blend stylistic tendencies, while too many may weaken consistency or create conflicting cues.
-- Offer these three default candidates, collected from the official Anima-2.9B sample prompts at `G:\Tools\ComfyUI\my\Anima-2.9B官方图片正负面Tags.json`: `@rucarachi`, `@far side`, and `@luozhou pile`.
+- Offer these three default candidates, collected from the official Anima-2.9B sample prompts at configured `paths.artist_prompt_samples`: `@rucarachi`, `@far side`, and `@luozhou pile`.
 
 Use wording equivalent to:
 
@@ -102,13 +104,13 @@ These are suggestions only. Add none of them to `[画师/风格词]` unless the 
 
 ### Artist Source and Verification Boundary
 
-Artist `@tags` are not currently stored in `G:\Tools\ComfyUI\user\default\prompt-assistant\tags\*.csv`. Those CSV files are the source for ordinary prompt tags, not the current source of truth for Anima artist tags.
+Artist `@tags` are not currently stored in the CSV files under the active environment profile's `paths.tag_csv_dir`. Those CSV files are the source for ordinary prompt tags, not the current source of truth for Anima artist tags.
 
 `comfyui-tag-finder` is a separate lookup skill for ordinary tags and Chinese/English tag translations in the Prompt Assistant CSV library. Use it for subject, appearance, clothing, pose, action, expression, scene, camera, lighting, and similar tags. Do not use a no-result from `comfyui-tag-finder` to declare an artist `@tag` invalid.
 
 Apply this artist verification order:
 
-1. For `@rucarachi`, `@far side`, and `@luozhou pile`, treat `G:\Tools\ComfyUI\my\Anima-2.9B官方图片正负面Tags.json` as the verifying source.
+1. For `@rucarachi`, `@far side`, and `@luozhou pile`, treat configured `paths.artist_prompt_samples` as the verifying source.
 2. For another artist requested by the user, check an available model-specific artist source, official sample metadata, or user-provided documentation before claiming that the exact `@tag` is verified.
 3. If no artist-specific source confirms the exact spelling, do not invent, normalize, replace, or claim verification. Tell the user that the artist tag is not locally verified and offer either using their exact text verbatim or choosing one or more of the three verified defaults.
 4. If the user chooses verbatim use, preserve the exact artist text they supplied and proceed. Artist verification is optional for prompt construction; accurate disclosure is required.
@@ -120,7 +122,7 @@ The absence of an artist tag from the ordinary local tag CSV does not block prom
 Optional mutable user examples live at:
 
 ```text
-G:\Tools\ComfyUI\my\tags_example.md
+the active environment profile's `paths.tag_examples`
 ```
 
 Read this file when the user asks to reference examples, reuse a common writing style, or generate a ComfyUI tag prompt similar to the user's examples.
@@ -207,7 +209,7 @@ When handing off to `comfyui-api-workflow-runner`, include prompt gate metadata:
 
 ```text
 prompt_source = comfyui-tag-prompt-engineer
-tags_knowledge_path = C:\Users\lenovo\.agents\skills\comfyui-tag-prompt-engineer\references\tags_knowledge.md
+tags_knowledge_path = <this skill>/references/tags_knowledge.md
 prompt_review_passed = true
 model_family = wai | rin | anima | other
 prompt_labeled = ...

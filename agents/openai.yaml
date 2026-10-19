@@ -1,3 +1,6 @@
-display_name: ComfyUI Tag Prompt Engineer
-short_description: Builds ComfyUI anime prompts and hands image generation to the workflow runner.
-default_prompt: Generate a ComfyUI image by building checked grouped prompts, running the saved workflow, and returning the final output image.
+interface:
+  display_name: ComfyUI Tag Prompt Engineer
+  short_description: Builds ComfyUI anime prompts and hands image generation to the
+    workflow runner.
+  default_prompt: Generate a ComfyUI image by building checked grouped prompts, running
+    the saved workflow, and returning the final output image.

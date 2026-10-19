@@ -1,0 +1,105 @@
+schema_version: 1
+researched_at: "2026-09-11"
+research_context:
+  requested_artist: "@rucarachi"
+  target_model: "Anima-2.9B"
+  content_brief: null
+  style_match:
+    status: not_evaluated
+    reason: "No concrete image brief was supplied; this run validates the artist record rather than claiming content fit."
+
+identity:
+  canonical_public_name: "Ruca"
+  legal_name: null
+  aliases: ["rucarachi", "ruca", "るか", "rucaraw", "user_xcmw5477", "xcmw5477"]
+  status: confirmed
+  evidence:
+    - {url: "https://rucarachi.itch.io/", source_type: artist_owned, proves: "Self-identifies as Ruca, illustrator/cosplayer, and links @rucarachi and the personal directory."}
+    - {url: "https://rucafolio.crd.co/", source_type: artist_owned, proves: "Portfolio identifies @rucarachi and lists clients and released works."}
+    - {url: "https://rucarachi.crd.co/", source_type: artist_owned, proves: "Personal directory links the portfolio and platform accounts."}
+
+danbooru:
+  artist_id: 449594
+  canonical_tag: "rucarachi"
+  canonical_artist_url: "https://danbooru.donmai.us/artists/449594"
+  accessible_mirror_url: "https://shima.donmai.us/artists/449594"
+  aliases: ["るか", "ruca", "rucaraw", "user_xcmw5477", "xcmw5477"]
+  excluded_related_tags:
+    - {tag: "ruca_(rucarachi)", type: character_self_insert, reason: "Not the artist tag."}
+  registered_urls_match_identity: true
+  status: confirmed
+  evidence:
+    - {url: "https://shima.donmai.us/artists/449594", source_type: community_database_mirror, proves: "Artist ID, canonical tag, aliases, character distinction, and registered account URLs."}
+    - {url: "https://rucarachi.crd.co/", source_type: artist_owned, proves: "Independent self-linked accounts agree with the Danbooru URL mapping."}
+
+model_artist_tag:
+  exact_tag: "@rucarachi"
+  status: model_sample_verified
+  syntax_verified: true
+  syntax_evidence:
+    - "https://huggingface.co/circlestone-labs/Anima/blob/main/README.md#artist-tags"
+    - "https://huggingface.co/Gazingstars123/Anima-2.9B/blob/main/README.md#prompting-tips-"
+  configured_sample:
+    config_key: "paths.artist_prompt_samples"
+    path: "G:\\Tools\\ComfyUI-aki-v3\\ComfyUI\\my\\Anima-2.9B官方图片正负面Tags.json"
+    json_parseable: true
+    top_level_image_records: 18
+    exact_unweighted_occurrences: 7
+    exact_unweighted_image_keys: ["139585000.png", "139639388.png", "139583566.png", "139583601.png", "139583842.png", "139583613.png", "139583858.png"]
+    weighted_occurrences: 1
+    weighted_image_keys: ["139631581.png"]
+    single_artist_example_keys: ["139583858.png"]
+    caveat: "Configured sample metadata verifies local prompt usage. It does not by itself prove identity, isolate visual effect, or re-establish upstream provenance."
+
+accounts:
+  - platform: X
+    handle: "@rucarachi"
+    numeric_user_id: "1812286800687452160"
+    profile_url: "https://x.com/rucarachi"
+    status: cross_verified
+    evidence: ["https://rucarachi.crd.co/", "https://rucarachi.itch.io/", "https://shima.donmai.us/artists/449594"]
+  - platform: Pixiv
+    numeric_user_id: "108116965"
+    profile_url: "https://www.pixiv.net/users/108116965"
+    status: cross_verified
+    evidence: ["https://rucarachi.crd.co/", "https://shima.donmai.us/artists/449594"]
+  - platform: Portfolio
+    profile_url: "https://rucafolio.crd.co/"
+    status: self_linked
+    evidence: ["https://rucarachi.crd.co/"]
+
+works:
+  representative:
+    label: style_representative_example
+    title: "NIKKE 2.5th Anniversary KV"
+    direct_work_url: null
+    archive_url: "https://rucafolio.crd.co/"
+    selection_basis: "A released commercial key visual prominently listed in the artist-owned portfolio; not claimed as an officially designated signature work."
+    attribution_status: primary_source
+    link_status: portfolio_listing
+  recent:
+    title_or_description: "playing with perspective"
+    published_at: "2026-09-09T21:30:00+08:00"
+    direct_work_url: null
+    archive_url: "https://twiman.net/user/1812286800687452160/illust"
+    page_locator: "Newest @rucarachi illustration entry, observed 2026-09-11."
+    attribution_status: probable
+    link_status: secondary_archive_only
+    note: "A stable canonical X status URL was not recoverable; do not invent one. Re-check the official account before reuse."
+
+recommendation:
+  prompt_tag_ready: true
+  content_fit_status: not_evaluated
+  confidence:
+    identity: high
+    danbooru_mapping: high
+    local_model_sample_usage: high
+    representative_work_attribution: high
+    recent_work_attribution: medium
+
+limitations:
+  - "No image brief was supplied, so visual content matching remains untested."
+  - "Most local sample occurrences blend @rucarachi with other artists; do not infer isolated style from those records."
+  - "The representative work has a portfolio listing rather than a dedicated work page."
+  - "The recent work is visible only through a secondary archive, not a canonical work post."
+  - "Links support attribution and viewing only; they do not grant reproduction or reuse rights."
